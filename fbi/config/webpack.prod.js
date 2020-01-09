@@ -9,6 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
+const postcssConfig = require('./postcss.config')
 const opts = require('../helpers/options')()
 
 const noop = function () {}
@@ -78,7 +79,24 @@ const webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: [
       {
-        test: /\.(less|css)$/,
+        test: /\.(less)$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              modules: true
+            }
+          },
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'less-loader'
+          }
+        ]
+      },
+      {
+        test: /\.(css)$/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader
@@ -88,15 +106,7 @@ const webpackConfig = merge(baseWebpackConfig, {
           },
           {
             loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-              plugins: Object.keys(opts.postcss).map(item => {
-                return require(`${item}`)(opts.postcss[item])
-              })
-            }
-          },
-          {
-            loader: 'less-loader'
+            options: postcssConfig(opts, root)
           }
         ]
       }
@@ -113,7 +123,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     new CleanWebpackPlugin(),
     // 分离 css 文件
     new MiniCssExtractPlugin({
-      filename: path.posix.join('static', 'css/[name].[hash].css')
+      filename: 'css/[name].[hash:8].css'
     }),
     // 当 vendor 模块没有改变时，保证模块 id 不变
     new webpack.HashedModuleIdsPlugin(),

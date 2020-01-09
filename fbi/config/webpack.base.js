@@ -4,8 +4,6 @@ const webpack = require('webpack')
 const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const eslintConfig = require('./eslint.config')
-
-// const eslintFriendlyFormatter = require('eslint-friendly-formatter')
 const opts = require('../helpers/options')()
 const DataForCompile = require('./data-for-compile')
 const root = process.cwd()
@@ -17,6 +15,7 @@ let templateFilepath = path.join(
 if (!fs.existsSync(templateFilepath)) {
   templateFilepath = templateFilepath.replace('.html', '.ejs')
 }
+const isProd = process.env.NODE_ENV === 'production'
 
 const devModulesPath =
   ctx.nodeModulesPaths[1] || path.join(root, './node_modules')
@@ -40,28 +39,8 @@ const babelOptions = require('../helpers/babel-options')(
 )
 
 const config = {
-  // context: path.resolve(__dirname, '../'),
-  // entry: {
-  //   app: path.resolve(__dirname, '../src/main.js')
-  // },
-  // output: {
-  //   path: path.resolve(__dirname, '../dist/web'),
-  //   filename: '[name].js',
-  //   publicPath: '/'
-  // },
   module: {
     rules: [
-      // eslint
-      // {
-      //   test: /\.(js|vue)$/,
-      //   loader: 'eslint-loader',
-      //   enforce: 'pre',
-      //   include: [path.resolve(__dirname, '../src')],
-      //   options: {
-      //     formatter: eslintFriendlyFormatter,
-      //     emitWarning: true
-      //   }
-      // },
       // vue
       {
         test: /\.vue$/,
@@ -113,7 +92,9 @@ const config = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: path.posix.join('static', 'img/[name].[hash:7].[ext]')
+          name: isProd
+            ? 'img/[name].[hash:8].[ext]'
+            : 'img/[name].[ext]?[hash:8]'
         }
       },
       // media res
@@ -122,7 +103,9 @@ const config = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: path.posix.join('static', 'media/[name].[hash:7].[ext]')
+          name: isProd
+            ? 'media/[name].[hash:8].[ext]'
+            : 'media/[name].[ext]?[hash:8]'
         }
       },
       // font res
@@ -131,7 +114,9 @@ const config = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: path.posix.join('static', 'fonts/[name].[hash:7].[ext]')
+          name: isProd
+            ? 'fonts/[name].[hash:8].[ext]'
+            : 'fonts/[name].[ext]?[hash:8]'
         }
       }
     ]

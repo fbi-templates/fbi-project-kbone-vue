@@ -6,10 +6,10 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const MpPlugin = require('mp-webpack-plugin') // 用于构建小程序代码的 webpack 插件
 const stylehacks = require('stylehacks')
-const autoprefixer = require('autoprefixer')
 const opts = require('../helpers/options')()
 const mpPluginConfig = opts.kbone // 插件配置
 const eslintConfig = require('./eslint.config')
+const postcssConfig = require('./postcss.config')
 
 const isDevelop = process.env.NODE_ENV === 'development'
 const isOptimize = true // 是否压缩业务代码，开发者工具可能无法完美支持业务代码使用到的 es 特性，建议自己做代码压缩
@@ -107,7 +107,7 @@ const config = {
       },
       // css
       {
-        test: /\.(less|css)$/,
+        test: /\.(less)$/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
@@ -119,33 +119,28 @@ const config = {
             loader: 'css-loader'
           },
           {
-            loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-              plugins: () => {
-                return [
-                  autoprefixer,
-                  stylehacks() // 剔除 ie hack 代码
-                ]
-              }
-            }
-          },
-          {
             loader: 'less-loader'
           }
         ]
       },
-      // eslint
-      // {
-      //   test: /\.(js|vue)$/,
-      //   loader: 'eslint-loader',
-      //   enforce: 'pre',
-      //   include: [path.resolve(__dirname, '../src')],
-      //   options: {
-      //     formatter: eslintFriendlyFormatter,
-      //     emitWarning: true
-      //   }
-      // },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
+              publicPath: '../'
+            }
+          },
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: postcssConfig(opts, root)
+          }
+        ]
+      },
       // vue
       {
         test: /\.vue$/,

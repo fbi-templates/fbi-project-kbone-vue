@@ -115,10 +115,22 @@ module.exports = {
 
   // Postcss config (plugin-name: plugin-options)
   postcss: {
+    // https://github.com/postcss/postcss-reporter#options
+    'postcss-reporter': {
+      clearReportedMessages: true,
+      clearAllMessages: true
+    },
+
     // https://github.com/postcss/autoprefixer#options
     // https://github.com/ai/browserslist#queries
-    autoprefixer: { overrideBrowserslist: targets.browserslist },
-    precss: {}
+    autoprefixer: {
+      overrideBrowserslist: targets.browserslist
+    },
+    // https://github.com/songsiqi/px2rem-postcss
+    // 'postcss-px2rem': {
+    //   remUnit: 100
+    // },
+    stylehacks: {}
   },
 
   // 配置参考：https://wechat-miniprogram.github.io/kbone/docs/config/
@@ -162,7 +174,7 @@ module.exports = {
       attrValueReduce: 5000
     },
     projectConfig: {
-      projectname: 'kbone-template-vue',
+      projectname: 'fbi-project-kbone-vue',
       appid: ''
     }
   }
